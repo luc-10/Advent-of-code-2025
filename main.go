@@ -15,7 +15,9 @@ func main(){
 	day := os.Args[1]
 
 	stringToFuncMap := map[string]func(){
-		"day1": days.Day1,
+		"day1" : days.Day1,
+		"day1Part1": days.Day1Part1,
+		"day1Part2": days.Day1Part2,
 	}
 
 	if f, ok := stringToFuncMap[day]; ok {
