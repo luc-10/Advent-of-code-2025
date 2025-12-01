@@ -1,0 +1,26 @@
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/luc-10/Advent-of-code-2025/days"
+)
+
+func main(){
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: go run main.go <day>")
+	}
+
+	day := os.Args[1]
+
+	stringToFuncMap := map[string]func(){
+		"day1": days.Day1,
+	}
+
+	if f, ok := stringToFuncMap[day]; ok {
+		f()
+	} else {
+		fmt.Println("Day not valid:", day)
+	}
+}
