@@ -3,16 +3,17 @@ package days
 import (
 	"fmt"
 	"strconv"
+
 	"github.com/luc-10/Advent-of-code-2025/io"
 )
 
-func Day1(){
+func Day1() {
 	Day1Part1()
 	Day1Part2()
 }
 
-func Day1Part1(){
-	data := io.ReadLines("files/day1.txt")
+func Day1Part1() {
+	data := io.ReadLines("files/day01.txt")
 
 	zeroCount, position := 0, 50
 
@@ -23,11 +24,11 @@ func Day1Part1(){
 			panic(err)
 		}
 
-		if s[0]=='L' {
-			movement*=-1
+		if s[0] == 'L' {
+			movement *= -1
 		}
 		position += movement
-		position = ((position%100)+100)%100
+		position = ((position % 100) + 100) % 100
 		if position == 0 {
 			zeroCount++
 		}
@@ -37,8 +38,8 @@ func Day1Part1(){
 	fmt.Println(zeroCount)
 }
 
-func Day1Part2(){
-	data := io.ReadLines("files/day1.txt")
+func Day1Part2() {
+	data := io.ReadLines("files/day01.txt")
 
 	zeroCount, position := 0, 50
 
@@ -49,20 +50,20 @@ func Day1Part2(){
 			panic(err)
 		}
 
-		direction:=1
+		direction := 1
 
-		if s[0]=='L' {
+		if s[0] == 'L' {
 			direction = -1
 		}
 
 		for movement > 0 {
-			position+=direction
+			position += direction
 			movement--
 			if position == -1 {
-				position+=100
+				position += 100
 			}
 			if position == 100 {
-				position-=100
+				position -= 100
 			}
 			if position == 0 {
 				zeroCount++

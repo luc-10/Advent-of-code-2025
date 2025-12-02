@@ -7,7 +7,7 @@ import (
 	"github.com/luc-10/Advent-of-code-2025/days"
 )
 
-func main(){
+func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: go run main.go <day>")
 	}
@@ -15,9 +15,14 @@ func main(){
 	day := os.Args[1]
 
 	stringToFuncMap := map[string]func(){
-		"day1" : days.Day1,
+
+		"day1":      days.Day1,
 		"day1Part1": days.Day1Part1,
 		"day1Part2": days.Day1Part2,
+
+		"day2":      days.Day2,
+		"day2Part1": days.Day2Part1,
+		"day2Part2": days.Day2Part2,
 	}
 
 	if f, ok := stringToFuncMap[day]; ok {
