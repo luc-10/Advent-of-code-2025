@@ -13,7 +13,7 @@ func Day1() {
 }
 
 func Day1Part1() {
-	data := io.ReadLines("files/day01.txt")
+	data := io.ReadLines("inputFiles/day01.txt")
 
 	zeroCount, position := 0, 50
 
@@ -39,7 +39,7 @@ func Day1Part1() {
 }
 
 func Day1Part2() {
-	data := io.ReadLines("files/day01.txt")
+	data := io.ReadLines("inputFiles/day01.txt")
 
 	zeroCount, position := 0, 50
 

@@ -15,7 +15,7 @@ func Day2() {
 }
 
 func Day2Part1() {
-	data := strings.Split(io.ReadLine("files/day02.txt"), ",")
+	data := strings.Split(io.ReadLine("inputFiles/day02.txt"), ",")
 
 	invalidSum := 0
 
@@ -47,7 +47,7 @@ func Day2Part1() {
 }
 
 func Day2Part2() {
-	data := strings.Split(io.ReadLine("files/day02.txt"), ",")
+	data := strings.Split(io.ReadLine("inputFiles/day02.txt"), ",")
 
 	invalidSum := 0
 
