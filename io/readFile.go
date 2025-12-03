@@ -17,3 +17,17 @@ func ReadLine(path string) string {
 
 	return strings.TrimSpace(string(input))
 }
+
+func ReadDigitLines(path string) [][]int {
+	lines := ReadLines(path)
+	mat := make([][]int, len(lines))
+
+	for i, line := range lines {
+		row := make([]int, len(line))
+		for j, char := range line {
+			row[j] = int(char - '0')
+		}
+		mat[i] = row
+	}
+	return mat
+}
