@@ -18,7 +18,7 @@ func ReadLine(path string) string {
 	return strings.TrimSpace(string(input))
 }
 
-func ReadDigitLines(path string) [][]int {
+func ReadIntLines(path string) [][]int {
 	lines := ReadLines(path)
 	mat := make([][]int, len(lines))
 
@@ -26,6 +26,20 @@ func ReadDigitLines(path string) [][]int {
 		row := make([]int, len(line))
 		for j, char := range line {
 			row[j] = int(char - '0')
+		}
+		mat[i] = row
+	}
+	return mat
+}
+
+func ReadByteLines(path string) [][]byte {
+	lines := ReadLines(path)
+	mat := make([][]byte, len(lines))
+
+	for i, line := range lines {
+		row := make([]byte, len(line))
+		for j, char := range line {
+			row[j] = byte(char)
 		}
 		mat[i] = row
 	}

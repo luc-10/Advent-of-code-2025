@@ -12,7 +12,7 @@ func Day3() {
 }
 
 func Day3Part1() {
-	data := io.ReadDigitLines("inputFiles/day03.txt")
+	data := io.ReadIntLines("inputFiles/day03.txt")
 
 	joltageSum := 0
 	for _, row := range data {
@@ -41,7 +41,7 @@ func Day3Part1() {
 }
 
 func Day3Part2() {
-	data := io.ReadDigitLines("inputFiles/day03.txt")
+	data := io.ReadIntLines("inputFiles/day03.txt")
 	joltageSum := 0
 	for _, row := range data {
 		dp := initializeMat(len(row), 12, -1)
