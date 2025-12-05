@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/luc-10/Advent-of-code-2025/days"
 )
@@ -38,7 +39,10 @@ func main() {
 	}
 
 	if f, ok := stringToFuncMap[day]; ok {
+		start := time.Now()
 		f()
+		elapsed := time.Since(start)
+		fmt.Println("Time:", elapsed)
 	} else {
 		fmt.Println("Day not valid:", day)
 	}

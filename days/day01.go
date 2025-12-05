@@ -50,24 +50,26 @@ func Day1Part2() {
 			panic(err)
 		}
 
-		direction := 1
+		zeroCount += (movement / 100)
+		movement %= 100
 
-		if s[0] == 'L' {
-			direction = -1
+		if movement == 0 {
+			continue
 		}
 
-		for movement > 0 {
-			position += direction
-			movement--
-			if position == -1 {
-				position += 100
-			}
-			if position == 100 {
-				position -= 100
-			}
-			if position == 0 {
-				zeroCount++
-			}
+		if s[0] == 'L' && position > 0 {
+			position = 100 - position
+		}
+
+		position += movement
+
+		if position >= 100 {
+			position -= 100
+			zeroCount++
+		}
+
+		if s[0] == 'L' && position > 0 {
+			position = 100 - position
 		}
 
 	}
