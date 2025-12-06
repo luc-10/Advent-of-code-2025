@@ -16,7 +16,7 @@ func Day5() {
 
 func Day5Part1() {
 	data := io.ReadLines("inputFiles/day05.txt")
-	ranges, ids := parseData(data)
+	ranges, ids := getRangesAndIDs(data)
 
 	rangeIndex, idIndex, freshIngredients := 0, 0, 0
 	for idIndex < len(ids) && rangeIndex < len(ranges) {
@@ -34,7 +34,7 @@ func Day5Part1() {
 
 func Day5Part2() {
 	data := io.ReadLines("inputFiles/day05.txt")
-	ranges, _ := parseData(data)
+	ranges, _ := getRangesAndIDs(data)
 
 	freshIngredients, prevTop := 0, 0
 	for _, pair := range ranges {
@@ -51,7 +51,7 @@ func Day5Part2() {
 	fmt.Println(freshIngredients)
 }
 
-func parseData(data []string) ([][2]int, []int) {
+func getRangesAndIDs(data []string) ([][2]int, []int) {
 	i := 0
 	for ; i < len(data); i++ {
 		if data[i] == "" {
