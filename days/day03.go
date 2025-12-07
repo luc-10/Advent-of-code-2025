@@ -45,7 +45,7 @@ func Day3Part2() {
 	joltageSum := 0
 	for _, row := range data {
 		dp := initializeMat(len(row), 12, -1)
-		joltageSum += recursiveDP(dp, len(row)-1, 11, row)
+		joltageSum += joltageMemoization(dp, len(row)-1, 11, row)
 	}
 	fmt.Println(joltageSum)
 
@@ -63,12 +63,12 @@ func initializeMat(rows, cols, val int) [][]int {
 	return mat
 }
 
-func recursiveDP(dp [][]int, i, j int, row []int) int {
+func joltageMemoization(dp [][]int, i, j int, row []int) int {
 	if i < 0 || j < 0 {
 		return 0
 	}
 	if dp[i][j] == -1 {
-		dp[i][j] = max(row[i]+10*recursiveDP(dp, i-1, j-1, row), recursiveDP(dp, i-1, j, row))
+		dp[i][j] = max(row[i]+10*joltageMemoization(dp, i-1, j-1, row), joltageMemoization(dp, i-1, j, row))
 	}
 	return dp[i][j]
 }
