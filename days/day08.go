@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/luc-10/Advent-of-code-2025/dataStructures"
 	"github.com/luc-10/Advent-of-code-2025/io"
 )
 
@@ -40,36 +41,19 @@ func Day8Part1() {
 	})
 
 	distBoxes = distBoxes[:1000]
-	circuits := make([]int, len(coords))
-	circuitIndex := 1
 
+	mfset := dataStructures.NewMfset(len(coords))
 	for _, distBox := range distBoxes {
-		circuitBox1, circuitBox2 := circuits[coordIndex[distBox.box1]], circuits[coordIndex[distBox.box2]]
-		if circuitBox1 == 0 && circuitBox2 == 0 {
-			circuits[coordIndex[distBox.box1]] = circuitIndex
-			circuits[coordIndex[distBox.box2]] = circuitIndex
-			circuitIndex++
-		} else if circuitBox1 == 0 || circuitBox2 == 0 {
-			circuits[coordIndex[distBox.box1]] = max(circuitBox1, circuitBox2)
-			circuits[coordIndex[distBox.box2]] = max(circuitBox1, circuitBox2)
-		} else if circuitBox1 == circuitBox2 {
-			continue
-		} else {
-			replaceInArray(circuits, max(circuitBox1, circuitBox2), min(circuitBox1, circuitBox2))
-		}
+		mfset.Merge(coordIndex[distBox.box1], coordIndex[distBox.box2])
 	}
 
-	circuitSize := make([]int, circuitIndex)
-
-	for _, circuit := range circuits {
-		if circuit == 0 {
-			continue
-		}
-		circuitSize[circuit]++
+	circuits := mfset.GetSetSizes()
+	sort.Ints(circuits)
+	val := 1
+	for i := 1; i <= 3; i++ {
+		val *= circuits[len(circuits)-i]
 	}
-	sort.Sort(sort.Reverse(sort.IntSlice(circuitSize)))
-	fmt.Println(circuitSize[0] * circuitSize[1] * circuitSize[2])
-
+	fmt.Println(val)
 }
 
 func Day8Part2() {
@@ -89,29 +73,17 @@ func Day8Part2() {
 	sort.Slice(distBoxes, func(i, j int) bool {
 		return distBoxes[i].dist < distBoxes[j].dist
 	})
-
-	circuits := make([]int, len(coords))
-	circuitIndex := 1
-
+	mfset := dataStructures.NewMfset(len(coords))
+	var lastBoxes DistBoxes
 	for _, distBox := range distBoxes {
-		circuitBox1, circuitBox2 := circuits[coordIndex[distBox.box1]], circuits[coordIndex[distBox.box2]]
-		if circuitBox1 == 0 && circuitBox2 == 0 {
-			circuits[coordIndex[distBox.box1]] = circuitIndex
-			circuits[coordIndex[distBox.box2]] = circuitIndex
-			circuitIndex++
-		} else if circuitBox1 == 0 || circuitBox2 == 0 {
-			circuits[coordIndex[distBox.box1]] = max(circuitBox1, circuitBox2)
-			circuits[coordIndex[distBox.box2]] = max(circuitBox1, circuitBox2)
-		} else if circuitBox1 == circuitBox2 {
-			continue
-		} else {
-			replaceInArray(circuits, max(circuitBox1, circuitBox2), min(circuitBox1, circuitBox2))
-		}
-		if arraySame(circuits) {
-			fmt.Println(distBox.box1[0] * distBox.box2[0])
+		lastBoxes = distBox
+		mfset.Merge(coordIndex[distBox.box1], coordIndex[distBox.box2])
+		if mfset.CountSets() == 1 {
 			break
 		}
 	}
+	val := lastBoxes.box1[0] * lastBoxes.box2[0]
+	fmt.Println(val)
 
 }
 
@@ -134,21 +106,4 @@ func getLineDistance(box1 [3]int, box2 [3]int) float64 {
 		squareDist += math.Pow(float64(box2[idx]-box1[idx]), 2)
 	}
 	return math.Sqrt(squareDist)
-}
-
-func replaceInArray(arr []int, val1, val2 int) {
-	for i := range arr {
-		if arr[i] == val1 {
-			arr[i] = val2
-		}
-	}
-}
-
-func arraySame(arr []int) bool {
-	for i := 1; i < len(arr); i++ {
-		if arr[i] != arr[i-1] {
-			return false
-		}
-	}
-	return true
 }
