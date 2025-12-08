@@ -41,12 +41,3 @@ func (mfs *Mfset) Merge(x, y int) {
 func (mfs *Mfset) CountSets() int {
 	return mfs.sets
 }
-
-func (mfs *Mfset) GetSetSizes() []int {
-	sizes := make([]int, len(mfs.parent))
-	for i := range mfs.parent {
-		root := mfs.Find(i)
-		sizes[root]++
-	}
-	return sizes
-}

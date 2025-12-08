@@ -11,12 +11,6 @@ import (
 	"github.com/luc-10/Advent-of-code-2025/io"
 )
 
-type DistBoxes struct {
-	dist float64
-	box1 [3]int
-	box2 [3]int
-}
-
 func Day8() {
 	Day8Part1()
 	Day8Part2()
@@ -25,22 +19,44 @@ func Day8() {
 func Day8Part1() {
 	data := io.ReadLines("inputFiles/day08.txt")
 	coords := getBoxesCoords(data)
+	junctions := 1000
+	pq := dataStructures.NewPriorityQueue(func(a, b *dataStructures.PriorityItem[[2][3]int]) bool {
+		return a.Priority > b.Priority
+	})
 
 	coordIndex := make(map[[3]int]int)
-
-	distBoxes := getDistBoxes(data, coords, coordIndex)
-	distBoxes = distBoxes[:1000]
-
-	mfset := dataStructures.NewMfset(len(coords))
-	for _, distBox := range distBoxes {
-		mfset.Merge(coordIndex[distBox.box1], coordIndex[distBox.box2])
+	for i := range coords {
+		coordIndex[coords[i]] = i
+		for j := i + 1; j < len(coords); j++ {
+			distSquared := int(getLineDistanceSquared(coords[i], coords[j]))
+			if pq.Len() < junctions {
+				pq.Push([2][3]int{coords[i], coords[j]}, distSquared)
+			} else {
+				top, _ := pq.Top()
+				if distSquared < int(getLineDistanceSquared(top[0], top[1])) {
+					pq.Pop()
+					pq.Push([2][3]int{coords[i], coords[j]}, distSquared)
+				}
+			}
+		}
 	}
 
-	circuits := mfset.GetSetSizes()
-	sort.Ints(circuits)
+	mfs := dataStructures.NewMfset(len(coords))
+	for i := 0; i < junctions; i++ {
+		boxes, _ := pq.Pop()
+		mfs.Merge(coordIndex[boxes[0]], coordIndex[boxes[1]])
+	}
+
+	sizes := make([]int, len(coords))
+	for i := range coords {
+		root := mfs.Find(i)
+		sizes[root]++
+	}
+	sort.Ints(sizes)
+
 	val := 1
 	for i := 1; i <= 3; i++ {
-		val *= circuits[len(circuits)-i]
+		val *= sizes[len(sizes)-i]
 	}
 	fmt.Println(val)
 }
@@ -48,23 +64,29 @@ func Day8Part1() {
 func Day8Part2() {
 	data := io.ReadLines("inputFiles/day08.txt")
 	coords := getBoxesCoords(data)
+	pq := dataStructures.NewPriorityQueue(func(a, b *dataStructures.PriorityItem[[2][3]int]) bool {
+		return a.Priority < b.Priority
+	})
 
 	coordIndex := make(map[[3]int]int)
+	for i := range coords {
+		coordIndex[coords[i]] = i
+		for j := i + 1; j < len(coords); j++ {
+			pq.Push([2][3]int{coords[i], coords[j]}, int(getLineDistanceSquared(coords[i], coords[j])))
+		}
+	}
 
-	distBoxes := getDistBoxes(data, coords, coordIndex)
-
-	mfset := dataStructures.NewMfset(len(coords))
-	var lastBoxes DistBoxes
-	for _, distBox := range distBoxes {
-		lastBoxes = distBox
-		mfset.Merge(coordIndex[distBox.box1], coordIndex[distBox.box2])
-		if mfset.CountSets() == 1 {
+	val := 0
+	mfs := dataStructures.NewMfset(len(coords))
+	for !pq.Empty() {
+		boxes, _ := pq.Pop()
+		mfs.Merge(coordIndex[boxes[0]], coordIndex[boxes[1]])
+		if mfs.CountSets() == 1 {
+			val = boxes[0][0] * boxes[1][0]
 			break
 		}
 	}
-	val := lastBoxes.box1[0] * lastBoxes.box2[0]
 	fmt.Println(val)
-
 }
 
 func getBoxesCoords(data []string) [][3]int {
@@ -86,20 +108,4 @@ func getLineDistanceSquared(box1 [3]int, box2 [3]int) float64 {
 		squareDist += math.Pow(float64(box2[idx]-box1[idx]), 2)
 	}
 	return squareDist
-}
-
-func getDistBoxes(data []string, coords [][3]int, coordIndex map[[3]int]int) []DistBoxes {
-	distBoxes := make([]DistBoxes, 0)
-
-	for i := range coords {
-		coordIndex[coords[i]] = i
-		for j := i + 1; j < len(coords); j++ {
-			distBoxes = append(distBoxes, DistBoxes{getLineDistanceSquared(coords[i], coords[j]), coords[i], coords[j]})
-		}
-	}
-
-	sort.Slice(distBoxes, func(i, j int) bool {
-		return distBoxes[i].dist < distBoxes[j].dist
-	})
-	return distBoxes
 }
