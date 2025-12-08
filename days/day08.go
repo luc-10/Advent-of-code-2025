@@ -25,21 +25,10 @@ func Day8() {
 func Day8Part1() {
 	data := io.ReadLines("inputFiles/day08.txt")
 	coords := getBoxesCoords(data)
-	distBoxes := make([]DistBoxes, 0)
 
 	coordIndex := make(map[[3]int]int)
 
-	for i := range coords {
-		coordIndex[coords[i]] = i
-		for j := i + 1; j < len(coords); j++ {
-			distBoxes = append(distBoxes, DistBoxes{getLineDistance(coords[i], coords[j]), coords[i], coords[j]})
-		}
-	}
-
-	sort.Slice(distBoxes, func(i, j int) bool {
-		return distBoxes[i].dist < distBoxes[j].dist
-	})
-
+	distBoxes := getDistBoxes(data, coords, coordIndex)
 	distBoxes = distBoxes[:1000]
 
 	mfset := dataStructures.NewMfset(len(coords))
@@ -59,20 +48,11 @@ func Day8Part1() {
 func Day8Part2() {
 	data := io.ReadLines("inputFiles/day08.txt")
 	coords := getBoxesCoords(data)
-	distBoxes := make([]DistBoxes, 0)
 
 	coordIndex := make(map[[3]int]int)
 
-	for i := range coords {
-		coordIndex[coords[i]] = i
-		for j := i + 1; j < len(coords); j++ {
-			distBoxes = append(distBoxes, DistBoxes{getLineDistance(coords[i], coords[j]), coords[i], coords[j]})
-		}
-	}
+	distBoxes := getDistBoxes(data, coords, coordIndex)
 
-	sort.Slice(distBoxes, func(i, j int) bool {
-		return distBoxes[i].dist < distBoxes[j].dist
-	})
 	mfset := dataStructures.NewMfset(len(coords))
 	var lastBoxes DistBoxes
 	for _, distBox := range distBoxes {
@@ -100,10 +80,26 @@ func getBoxesCoords(data []string) [][3]int {
 	return coords
 }
 
-func getLineDistance(box1 [3]int, box2 [3]int) float64 {
+func getLineDistanceSquared(box1 [3]int, box2 [3]int) float64 {
 	squareDist := 0.0
 	for idx := range 3 {
 		squareDist += math.Pow(float64(box2[idx]-box1[idx]), 2)
 	}
-	return math.Sqrt(squareDist)
+	return squareDist
+}
+
+func getDistBoxes(data []string, coords [][3]int, coordIndex map[[3]int]int) []DistBoxes {
+	distBoxes := make([]DistBoxes, 0)
+
+	for i := range coords {
+		coordIndex[coords[i]] = i
+		for j := i + 1; j < len(coords); j++ {
+			distBoxes = append(distBoxes, DistBoxes{getLineDistanceSquared(coords[i], coords[j]), coords[i], coords[j]})
+		}
+	}
+
+	sort.Slice(distBoxes, func(i, j int) bool {
+		return distBoxes[i].dist < distBoxes[j].dist
+	})
+	return distBoxes
 }
