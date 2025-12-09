@@ -41,54 +41,38 @@ func Day9Part2() {
 	sort.Slice(redTilesCoords, func(i, j int) bool {
 		return redTilesCoords[i][0] < redTilesCoords[j][0]
 	})
-	bigifyX := make(map[int]int)
-	smallifyX := make(map[int]int)
-	val := 1
-	for _, point := range redTilesCoords {
-		if smallifyX[point[0]] == 0 {
-			smallifyX[point[0]] = val
-			bigifyX[val] = point[0]
-			val++
-		}
-	}
+	compressorX, decompressorX := getCompressorDecompressor(redTilesCoords, 0)
 
-	maxX := val
 	sort.Slice(redTilesCoords, func(i, j int) bool {
 		return redTilesCoords[i][1] < redTilesCoords[j][1]
 	})
+	compressorY, decompressorY := getCompressorDecompressor(redTilesCoords, 1)
 
-	bigifyY := make(map[int]int)
-	smallifyY := make(map[int]int)
-	val = 1
-
-	for _, point := range redTilesCoords {
-		if smallifyY[point[1]] == 0 {
-			smallifyY[point[1]] = val
-			bigifyY[val] = point[1]
-			val++
-		}
-	}
-
-	maxY := val
 	sort.Slice(redTilesCoords, func(i, j int) bool {
 		return initialOrder[redTilesCoords[i]] < initialOrder[redTilesCoords[j]]
 	})
 	smallRedTilesCoords := make([][2]int, len(redTilesCoords))
+	corner := [2]int{0, 0}
 	for i := range redTilesCoords {
-		smallRedTilesCoords[i] = smallify(redTilesCoords[i], smallifyX, smallifyY)
+		smallRedTilesCoords[i] = [2]int{compressorX[redTilesCoords[i][0]], compressorY[redTilesCoords[i][1]]}
+		corner[0] = max(corner[0], smallRedTilesCoords[i][0])
+		corner[1] = max(corner[1], smallRedTilesCoords[i][1])
 	}
 
-	grid := createGrid([2]int{maxX, maxY})
+	grid := createGrid(corner)
 	createBorder(grid, smallRedTilesCoords)
+
 	fillOutside(grid)
+
 	rectangleSize := 0
 	for i := range smallRedTilesCoords {
 		for j := i + 2; j < len(smallRedTilesCoords); j++ {
-
 			if isInside(smallRedTilesCoords[i], smallRedTilesCoords[j], grid) {
-				rectangleSize = max(rectangleSize, getBigRectangleSize(smallRedTilesCoords[i], smallRedTilesCoords[j], bigifyX, bigifyY))
+				rectangleSize = max(rectangleSize, getRectangleSize(
+					[2]int{decompressorX[smallRedTilesCoords[i][0]], decompressorY[smallRedTilesCoords[i][1]]},
+					[2]int{decompressorX[smallRedTilesCoords[j][0]], decompressorY[smallRedTilesCoords[j][1]]},
+				))
 			}
-
 		}
 	}
 	fmt.Println(rectangleSize)
@@ -106,10 +90,6 @@ func getRedTilesCoords(lines []string) [][2]int {
 
 func getRectangleSize(rect1, rect2 [2]int) int {
 	return int((math.Abs(float64(rect2[0]-rect1[0])) + 1) * (math.Abs(float64(rect2[1]-rect1[1])) + 1))
-}
-
-func smallify(point [2]int, smallifyX, smallifyY map[int]int) [2]int {
-	return [2]int{smallifyX[point[0]], smallifyY[point[1]]}
 }
 
 func createGrid(corner [2]int) [][]byte {
@@ -166,10 +146,6 @@ func fillOutside(grid [][]byte) {
 	}
 }
 
-func getBigRectangleSize(rect1, rect2 [2]int, bigifyX, bigifyY map[int]int) int {
-	return getRectangleSize([2]int{bigifyX[rect1[0]], bigifyY[rect1[1]]}, [2]int{bigifyX[rect2[0]], bigifyY[rect2[1]]})
-}
-
 func isInside(point1, point2 [2]int, grid [][]byte) bool {
 	for i := min(point1[0], point2[0]); i <= max(point1[0], point2[0]); i++ {
 		for j := min(point1[1], point2[1]); j <= max(point1[1], point2[1]); j++ {
@@ -179,4 +155,19 @@ func isInside(point1, point2 [2]int, grid [][]byte) bool {
 		}
 	}
 	return true
+}
+
+func getCompressorDecompressor(redTilesCoords [][2]int, index int) (map[int]int, map[int]int) {
+	compressor := make(map[int]int)
+	decompressor := make(map[int]int)
+	val := 1
+	for _, tile := range redTilesCoords {
+		if compressor[tile[index]] == 0 {
+			compressor[tile[index]] = val
+			decompressor[val] = tile[index]
+			val++
+		}
+	}
+	return compressor, decompressor
+
 }
