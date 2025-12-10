@@ -17,72 +17,61 @@ func Day10() {
 
 func Day10Part1() {
 	data := io.ReadLines("inputFiles/day10.txt")
+
 	sum := 0
 	for i := range data {
-		configuration := strings.Split(data[i], " ")
-		lights := make([]bool, len(configuration[0])-2)
-		for i := range lights {
-			if configuration[0][i+1] == '#' {
-				lights[i] = true
-			} else {
-				lights[i] = false
-			}
-		}
-		buttons := make([][]int, len(configuration)-2)
-		for i := 1; i < len(configuration)-1; i++ {
-
-			nums := strings.Split(strings.Trim(configuration[i], "()"), ",")
-			for _, num := range nums {
-				n, _ := strconv.Atoi(num)
-				buttons[i-1] = append(buttons[i-1], n)
-			}
-		}
-
-		sum += exploreButtons(lights, buttons)
-
+		lights, buttons, _ := getLightsButtonsJoltage(data[i])
+		sum += buttonsBFS(lights, buttons)
 	}
+
 	fmt.Println(sum)
 }
 
 func Day10Part2() {
-
 	data := io.ReadLines("inputFiles/day10.txt")
+
 	sum := 0
 	for i := range data {
-		configuration := strings.Split(data[i], " ")
-		lights := make([]bool, len(configuration[0])-2)
-		for i := range lights {
-			if configuration[0][i+1] == '#' {
-				lights[i] = true
-			} else {
-				lights[i] = false
-			}
-		}
-		buttons := make([][]int, len(configuration)-2)
-		for i := 1; i < len(configuration)-1; i++ {
-
-			nums := strings.Split(strings.Trim(configuration[i], "()"), ",")
-			for _, num := range nums {
-				n, _ := strconv.Atoi(num)
-				buttons[i-1] = append(buttons[i-1], n)
-			}
-		}
-
-		nums := strings.Split(strings.Trim(configuration[len(configuration)-1], "{}"), ",")
-		joltage := make([]int, len(nums))
-		for i := range nums {
-			joltage[i], _ = strconv.Atoi(nums[i])
-		}
-		sum += solveGlpk(createMatrix(buttons, joltage), joltage)
+		_, buttons, joltage := getLightsButtonsJoltage(data[i])
+		sum += solveGlpk(createMatrix(buttons, len(joltage)), joltage)
 
 	}
+
 	fmt.Println(sum)
 }
 
-func exploreButtons(lights []bool, buttons [][]int) int {
+func getLightsButtonsJoltage(line string) ([]bool, [][]int, []int) {
+	splitLine := strings.Split(line, " ")
+	lights := make([]bool, len(splitLine[0])-2)
+	for i := range lights {
+		if splitLine[0][i+1] == '#' {
+			lights[i] = true
+		} else {
+			lights[i] = false
+		}
+	}
+	buttons := make([][]int, len(splitLine)-2)
+	for i := 1; i < len(splitLine)-1; i++ {
+
+		buttonString := strings.Split(strings.Trim(splitLine[i], "()"), ",")
+		for _, s := range buttonString {
+			num, _ := strconv.Atoi(s)
+			buttons[i-1] = append(buttons[i-1], num)
+		}
+	}
+
+	joltageString := strings.Split(strings.Trim(splitLine[len(splitLine)-1], "{}"), ",")
+	joltage := make([]int, len(joltageString))
+	for i := range joltageString {
+		joltage[i], _ = strconv.Atoi(joltageString[i])
+	}
+	return lights, buttons, joltage
+}
+
+func buttonsBFS(lights []bool, buttons [][]int) int {
 	visited := make(map[string]bool)
 	pos := make([]bool, len(lights))
-	visited[turnIntoString(pos)] = true
+	visited[turnLightsToString(pos)] = true
 	var q dataStructures.Queue[[]bool]
 	q.Push(pos)
 	dist, toPop := 0, 1
@@ -91,11 +80,11 @@ func exploreButtons(lights []bool, buttons [][]int) int {
 		toPop--
 		for _, button := range buttons {
 			next := pressButton(pos, button)
-			if !visited[turnIntoString(next)] {
+			if !visited[turnLightsToString(next)] {
 				if equalLights(lights, next) {
 					return dist + 1
 				}
-				visited[turnIntoString(next)] = true
+				visited[turnLightsToString(next)] = true
 				q.Push(next)
 			}
 		}
@@ -108,7 +97,7 @@ func exploreButtons(lights []bool, buttons [][]int) int {
 	return -1
 }
 
-func turnIntoString(lights []bool) string {
+func turnLightsToString(lights []bool) string {
 	ret := make([]byte, len(lights))
 	for _, b := range lights {
 		if b {
@@ -143,35 +132,24 @@ func solveGlpk(A [][]int, b []int) int {
 	cols := len(A[0])
 
 	lp := glpk.New()
-	lp.SetProbName("day10Part2")
-	lp.SetObjName("day10b")
 	lp.SetObjDir(glpk.MIN)
+
 	lp.AddCols(cols)
-	for j := 0; j < cols; j++ {
-		lp.SetColBnds(j+1, glpk.LO, 0, 0)
-		lp.SetColKind(j+1, glpk.IV)
-		lp.SetObjCoef(j+1, 1)
+	for j := 1; j <= cols; j++ {
+		lp.SetColBnds(j, glpk.LO, 0, 0)
+		lp.SetColKind(j, glpk.IV)
+		lp.SetObjCoef(j, 1)
 	}
-	floatA := make([][]float64, rows)
-	for i := 0; i < rows; i++ {
-		floatA[i] = make([]float64, cols)
-		for j := 0; j < cols; j++ {
-			floatA[i][j] = float64(A[i][j])
-		}
-	}
+
 	lp.AddRows(rows)
 	for i := 1; i <= rows; i++ {
 		lp.SetRowBnds(i, glpk.FX, float64(b[i-1]), float64(b[i-1]))
-
 		colIdx := []int32{0}
 		colVal := []float64{0}
-
 		for j := 1; j <= cols; j++ {
 			colIdx = append(colIdx, int32(j))
 			colVal = append(colVal, float64(A[i-1][j-1]))
-
 		}
-
 		lp.SetMatRow(i, colIdx, colVal)
 	}
 
@@ -182,22 +160,18 @@ func solveGlpk(A [][]int, b []int) int {
 	mipParm := glpk.NewIocp()
 	mipParm.SetMsgLev(glpk.MSG_OFF)
 	lp.Intopt(mipParm)
-	xSol := make([]int, cols)
-	for j := 1; j <= cols; j++ {
-		xSol[j-1] = int(lp.MipColVal(j))
-	}
 
 	sum := 0
-	for i := range xSol {
-		sum += xSol[i]
+	for j := 1; j <= cols; j++ {
+		sum += int(lp.MipColVal(j))
 	}
 	lp.Delete()
+
 	return sum
 
 }
 
-func createMatrix(buttons [][]int, joltage []int) [][]int {
-	rows := len(joltage)
+func createMatrix(buttons [][]int, rows int) [][]int {
 	matrix := make([][]int, rows)
 	for i := range matrix {
 		matrix[i] = make([]int, len(buttons))
