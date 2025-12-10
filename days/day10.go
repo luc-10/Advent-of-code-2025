@@ -15,9 +15,6 @@ func Day10() {
 	Day10Part2()
 }
 
-var sols []int
-var solIndex int
-
 func Day10Part1() {
 	data := io.ReadLines("inputFiles/day10.txt")
 	sum := 0
@@ -51,12 +48,7 @@ func Day10Part2() {
 
 	data := io.ReadLines("inputFiles/day10.txt")
 	sum := 0
-	sols = make([]int, len(data))
-	solIndex = -1
 	for i := range data {
-		solIndex++
-		sols[solIndex] = 100000009
-		//fmt.Println("Now on line ", solIndex)
 		configuration := strings.Split(data[i], " ")
 		lights := make([]bool, len(configuration[0])-2)
 		for i := range lights {
@@ -150,13 +142,6 @@ func solveGlpk(A [][]int, b []int) int {
 	rows := len(A)
 	cols := len(A[0])
 
-	for i := range A {
-		for j := range A[i] {
-			fmt.Printf("%d ", A[i][j])
-		}
-		fmt.Println(b[i])
-	}
-
 	lp := glpk.New()
 	lp.SetProbName("day10Part2")
 	lp.SetObjName("day10b")
@@ -165,6 +150,7 @@ func solveGlpk(A [][]int, b []int) int {
 	for j := 0; j < cols; j++ {
 		lp.SetColBnds(j+1, glpk.LO, 0, 0)
 		lp.SetColKind(j+1, glpk.IV)
+		lp.SetObjCoef(j+1, 1)
 	}
 	floatA := make([][]float64, rows)
 	for i := 0; i < rows; i++ {
@@ -189,24 +175,22 @@ func solveGlpk(A [][]int, b []int) int {
 		lp.SetMatRow(i, colIdx, colVal)
 	}
 
-	//lp.WriteLP(glpk.NewCPXCP(), "debut.lp")
-
 	parm := glpk.NewSmcp()
+	parm.SetMsgLev(glpk.MSG_OFF)
 	lp.Simplex(parm)
 
 	mipParm := glpk.NewIocp()
+	mipParm.SetMsgLev(glpk.MSG_OFF)
 	lp.Intopt(mipParm)
 	xSol := make([]int, cols)
 	for j := 1; j <= cols; j++ {
 		xSol[j-1] = int(lp.MipColVal(j))
 	}
 
-	fmt.Println(xSol)
 	sum := 0
 	for i := range xSol {
 		sum += xSol[i]
 	}
-	fmt.Println(sum)
 	lp.Delete()
 	return sum
 
