@@ -56,6 +56,10 @@ func main() {
 		"day10":      days.Day10,
 		"day10Part1": days.Day10Part1,
 		"day10Part2": days.Day10Part2,
+
+		"day11":      days.Day11,
+		"day11Part1": days.Day11Part1,
+		"day11Part2": days.Day11Part2,
 	}
 
 	if f, ok := stringToFuncMap[day]; ok {
