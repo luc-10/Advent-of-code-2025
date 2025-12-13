@@ -11,6 +11,7 @@ import (
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: go run main.go <day>")
+		return
 	}
 
 	day := os.Args[1]
@@ -63,6 +64,8 @@ func main() {
 
 		"day12":      days.Day12,
 		"day12Part1": days.Day12Part1,
+
+		"all": runAllDays,
 	}
 
 	if f, ok := stringToFuncMap[day]; ok {
@@ -73,4 +76,31 @@ func main() {
 	} else {
 		fmt.Println("Day not valid:", day)
 	}
+}
+
+func runAllDays() {
+	fmt.Println("Day 1")
+	days.Day1()
+	fmt.Println("---\nDay 2")
+	days.Day2()
+	fmt.Println("---\nDay 3")
+	days.Day3()
+	fmt.Println("---\nDay 4")
+	days.Day4()
+	fmt.Println("---\nDay 5")
+	days.Day5()
+	fmt.Println("---\nDay 6")
+	days.Day6()
+	fmt.Println("---\nDay 7")
+	days.Day7()
+	fmt.Println("---\nDay 8")
+	days.Day8()
+	fmt.Println("---\nDay 9")
+	days.Day9()
+	fmt.Println("---\nDay 10")
+	days.Day10()
+	fmt.Println("---\nDay 11")
+	days.Day11()
+	fmt.Println("---\nDay 12")
+	days.Day12()
 }
